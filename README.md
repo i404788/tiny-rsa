@@ -1,4 +1,4 @@
-# RSA.ts
+# Tiny RSA
 A tiny RSA implementation written in modern typescript, with tc39 bigint.
 This module only relies on standard node.js libraries (Buffer, crypto & assert)
 
@@ -7,8 +7,7 @@ This module only relies on standard node.js libraries (Buffer, crypto & assert)
 No warranty provided whatsoever, use at your own risk.**
 
 ## Requirements
-* Node.js >= 10.4 OR [a recent browser](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#Browser_compatibility)
-* Typescript compiler
+* Deno OR Node.js >= 10.4 OR [a recent browser](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#Browser_compatibility)
 
 ## Features
 * Supports padding

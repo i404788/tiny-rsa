@@ -5,7 +5,7 @@
   "main": "dist/rsa.js",
   "author": "Ferris Kwaijtaal <ferrispc@hotmail.com?",
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
     "@types/node": "^12.0.10"
   },
   "scripts": {
