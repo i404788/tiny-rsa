@@ -2,7 +2,7 @@
   "name": "tiny-rsa",
   "version": "0.1.1",
   "description": "Tiny RSA implementation in Typescript 3/ES2020",
-  "main": "index.js",
+  "main": "dist/rsa.js",
   "author": "Ferris Kwaijtaal <ferrispc@hotmail.com?",
   "license": "MIT",
   "dependencies": {
@@ -10,5 +10,8 @@
   },
   "scripts": {
     "prepack": "tsc"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
