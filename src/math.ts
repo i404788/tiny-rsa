@@ -8,8 +8,7 @@ export function powmod(base: bigint, exp: bigint, m: bigint): bigint {
 }
 
 export function isqrt(n: bigint): bigint {
-    assert.ok(n >= 0, `integerSqrt works for only nonnegative inputs (${n})`)
-    if(n < 2) return n
+    if (n < 2n) return n
 
     let smallD = isqrt(n >> 2n) << 1n;
     let largeD = smallD + 1n
@@ -18,17 +17,6 @@ export function isqrt(n: bigint): bigint {
     else
         return largeD
 }
-
-// function isqrt(n: bigint): bigint {
-//     if (n <= 0n) return 0n
-//     let x = 0n
-//     let y = n
-//     while (true) {
-//         x = y
-//         y = (y + n / y) / 2n
-//         if (x <= y) return x
-//     }
-// }
 
 // export function totient(p: bigint, q: bigint): bigint {
 //     return (p - 1n) * (q - 1n)
@@ -50,36 +38,6 @@ export function modmulinv(n: bigint, mod: bigint){
     return (bx % mod + mod) % mod;
 }
 
-// Mod needs to be prime
-// export function modmulinv(n: bigint, mod: bigint): bigint {
-//     // assert.ok()
-//     return powmod(n, mod - 2n, mod)
-// }
-
-// a & m need to be coprime
-// function modmulinv(a: bigint, m: bigint) {
-//     a = (a % m + m) % m
-//     if (!a || m < 2n) {
-//         return NaN // invalid input
-//     }
-//     // find the gcd
-//     const s = []
-//     let b = m
-//     while (b) {
-//         [a, b] = [b, a % b]
-//         s.push({ a, b })
-//     }
-//     if (a !== 1n) {
-//         return NaN // inverse does not exists
-//     }
-//     // find the inverse
-//     let x = 1n
-//     let y = 0n
-//     for (let i = s.length - 2; i >= 0; --i) {
-//         [x, y] = [y, x - y * BigInt(s[i].a / s[i].b)]
-//     }
-//     return (y % m + m) % m
-// }
 
 // function byteLength (n: bigint) {
 //     return Math.ceil(n.toString(16).length/2)
@@ -112,43 +70,19 @@ export function fermatPrime(n: bigint, s: number) {
     return true
 }
 
-// function isStrongPseudoprime(n: bigint, a: bigint) {
-//     let d = n - 1n;
-//     let s = 0n
-//     while (d % 2n == 0n) {
-//         d = d / 2n
-//         s = s + 1n
-//     }
-//     let t = powmod(a, d, n)
-//     if (t == 1n) return true
-//     while (s > 0n) {
-//         if (t == n - 1n)
-//         return true
-//         t = (t * t) % n
-//         s = s - 1n
-//     }
-//     return false
-// }
-
-// // by setting the value of k you can determine the likelihood of error as 1 chance in 4^k
-// export function isPrime(n: bigint, k: number): boolean {
-//     for (let i = 1; i < k; i++) {
-//         let a = randomBInt(n - 1n, 2n) // TODO: bigint impl
-//         if (isStrongPseudoprime(n, a) == false) // Composite
-//             return false
-//     }
-//     return true //ProbablyPrime
-// }
-
 export function randomPrime(bits: number) {
-    // const min = 6074001000n << (BigInt(bits) - 33n)  // min ≈ √2 × 2^(bits - 1)
-    // const max = (1n << BigInt(bits)) - 1n  // max = 2^(bits) - 1
-    let current = randBits(BigInt(bits))
+    const min = 6074001000n << (BigInt(bits) - 33n)  // min ≈ √2 × 2^(bits - 1)
+    const max = (1n << BigInt(bits)) - 1n  // max = 2^(bits) - 1
+    let current = randRange(max, min)
     if (!(current & 1n)) ++current
     while (true) {
         if (fermatPrime(current, 50)) {
             return current
         }
         current += 2n
+        if (current > max) {
+            current = randRange(max, min)
+            if (!(current & 1n)) ++current
+        }
     }
 }

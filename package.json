@@ -3,10 +3,16 @@
   "version": "0.1.3",
   "description": "Tiny RSA implementation in Typescript 3/ES2020",
   "main": "dist/rsa.js",
-  "author": "Ferris Kwaijtaal <ferrispc@hotmail.com?",
+  "author": "Ferris Kwaijtaal <ferrispc@hotmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/i404788/tiny-rsa"
+  },
   "devDependencies": {
-    "@types/node": "^12.0.10"
+    "typescript":"^3.5.2",
+    "@types/node": "^12.0.10",
+    "benchmark": "^2.1.4"
   },
   "scripts": {
     "prepack": "tsc"
