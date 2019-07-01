@@ -1,10 +1,14 @@
 # RSA.ts
 A tiny RSA implementation written in modern typescript, with tc39 bigint.
-With (currently) 0 external dependencies.
+This module only relies on standard node.js libraries (Buffer, crypto & assert)
 
 ## **Disclaimer**
 **This module is currently in developement.
 No warranty provided whatsoever, use at your own risk.**
+
+## Requirements
+* Node.js >= 10.4 OR [a recent browser](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#Browser_compatibility)
+* Typescript compiler
 
 ## Features
 * Supports padding
@@ -14,8 +18,4 @@ No warranty provided whatsoever, use at your own risk.**
 * Supports Key Generations
     * Any keysize (default 1024)
     * Any public exponent (default: 0x10001)
-
-
-Uses/adapts components from:
-* [Closure](https://github.com/google/closure-library) (Apache 2.0)
-* [bigint-buffer](https://github.com/no2chem/bigint-buffer) (Apache 2.0)
+* Only 9kB on nodejs

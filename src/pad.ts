@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import assert from 'assert';
-import { stringToUtf8ByteArray, hexToBytes } from "./encode";
+import { hexToBytes } from "./encode";
 
 const HASH_SIZE = 32 // sha256
 
@@ -61,14 +61,14 @@ export function OAEP_Unpad(f: bigint, n: number) {
     let s = String.fromCharCode.apply(String, d);
     assert.ok(s.length > 2 * HASH_SIZE + 2, "Cipher too short")
 
-    var maskedSeed = stringToUtf8ByteArray(s.substr(1, HASH_SIZE));
-    var maskedDB = stringToUtf8ByteArray(s.substr(HASH_SIZE + 1));
-    var seedMask = stringToUtf8ByteArray(OAEP_MaskGen(maskedDB, HASH_SIZE));
+    var maskedSeed = Buffer.from(s.substr(1, HASH_SIZE));
+    var maskedDB = Buffer.from(s.substr(HASH_SIZE + 1));
+    var seedMask = Buffer.from(OAEP_MaskGen(Array.from(maskedDB), HASH_SIZE));
     var seed = [], i;
     for (i = 0; i < maskedSeed.length; i += 1) {
         seed[i] = maskedSeed[i] ^ seedMask[i]
     }
-    var dbMask = stringToUtf8ByteArray(OAEP_MaskGen(seed, s.length - HASH_SIZE))
+    var dbMask = Buffer.from(OAEP_MaskGen(seed, s.length - HASH_SIZE))
     let DB: number[] = [];
     for (i = 0; i < maskedDB.length; i += 1) {
         DB[i] = maskedDB[i] ^ dbMask[i];
