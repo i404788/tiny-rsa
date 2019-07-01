@@ -1,0 +1,14 @@
+{
+  "name": "rsa",
+  "version": "0.1.0",
+  "description": "Tiny RSA implementation in Typescript 3/ES2020",
+  "main": "index.js",
+  "author": "Ferris Kwaijtaal <ferrispc@hotmail.com?",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^12.0.10"
+  },
+  "scripts": {
+    "prepack": "tsc"
+  }
+}
