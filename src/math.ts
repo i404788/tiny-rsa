@@ -70,9 +70,9 @@ export function fermatPrime(n: bigint, s: number) {
     return true
 }
 
-export function randomPrime(bits: number) {
-    const min = 6074001000n << (BigInt(bits) - 33n)  // min ≈ √2 × 2^(bits - 1)
-    const max = (1n << BigInt(bits)) - 1n  // max = 2^(bits) - 1
+export function randomPrime(bits: bigint) {
+    const min = 6074001000n << (bits - 33n)  // min ≈ √2 × 2^(bits - 1)
+    const max = (1n << bits) - 1n  // max = 2^(bits) - 1
     let current = randRange(max, min)
     if (!(current & 1n)) ++current
     while (true) {

@@ -8,7 +8,7 @@ function rarr(arr) {
 
 let primes = []
 for (let i = 0; i < 100; i++) {
-    primes.push(math.randomPrime(256))
+    primes.push(math.randomPrime(256n))
 }
 
 let notPrimes = []
@@ -221,13 +221,13 @@ accuracy = [{'total': 0, 'false_neg': 0, 'false_pos': 0}, {'total': 0, 'false_ne
 
 suite.add('PrimeGen#current', function () {
     accuracy[0]['total']++
-    let x = math.randomPrime(1024)
+    let x = math.randomPrime(1024n)
     let prime = math.fermatPrime(x, 100)
     if (!prime) accuracy[0]['false_pos']++
 })
 .add('PrimeGen#B', function () {
     accuracy[1]['total']++
-    let x = randomPrime(1024);
+    let x = randomPrime(1024n);
     let prime = math.fermatPrime(x, 100)
     if (!prime) accuracy[1]['false_pos']++
 })
