@@ -32,7 +32,6 @@ export function generateKey(keysize = 2048n, e = 65537n, lambdaNf: 'carmichael' 
             if (d > isqrt(isqrt(n)) / 3n)
                 continue
         
-        
         return {
             modulus: n,
             public_exp: e,

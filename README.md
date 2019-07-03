@@ -2,10 +2,6 @@
 A tiny RSA implementation written in pure typescript, with tc39 bigint.
 This module only relies on standard node.js libraries (Buffer & crypto currently)
 
-## **Disclaimer**
-**This module is currently in developement.
-No warranty provided whatsoever, use at your own risk.**
-
 ## Requirements
 * Deno OR Node.js >= 10.4 OR [a recent browser](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#Browser_compatibility)
 
@@ -20,7 +16,7 @@ No warranty provided whatsoever, use at your own risk.**
 * Tests
     * Optimized math library
     * ROCA tested
-* Only 7.4kB on nodejs
+* Only 9.1kB on nodejs
 
 ## Basic Usage
 ```javascript
