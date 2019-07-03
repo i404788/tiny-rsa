@@ -1,5 +1,4 @@
 import {randomBytes} from 'crypto';
-import assert from 'assert';
 
 export function powmod(base: bigint, exp: bigint, m: bigint): bigint {
     if (exp === 0n) return 1n
@@ -24,7 +23,6 @@ export function isqrt(n: bigint): bigint {
 
 export function egcd(a: bigint, b: bigint): {gcd: bigint, bx: bigint, by: bigint} {
     if (!b) return {gcd: a, bx: 1n, by: 0n};
-
     const {gcd, bx, by} = egcd(b, a % b);
     return {gcd, bx: by, by: bx - (a / b) * by};
 }
@@ -34,7 +32,7 @@ export const abs = (n: bigint) => n < 0n ? n * -1n: n
 
 export function modmulinv(n: bigint, mod: bigint){
     let {gcd, bx} = egcd(n, mod);
-    assert.equal(gcd, 1n, "Inverse does not exist");
+    if (gcd !== 1n) throw new Error("Inverse does not exist")
     return (bx % mod + mod) % mod;
 }
 
@@ -54,7 +52,7 @@ export function bitLength (n: bigint) {
 export const rand = (size_t: number) => BigInt(`0x${randomBytes(size_t).toString('hex')}`)
 export const randBits = (bits: bigint) => rand(Math.ceil(Number(bits) / 8)) % (1n << bits)
 export const randRange = (n: bigint, min = 0n) => {
-    assert.ok(n > min, "n needs to be higher than min");
+    if (n <= min) throw new Error("n needs to be higher than min");
     let current = (randBits(bitLength(n)+1n) + min) % n;
     return current
 }

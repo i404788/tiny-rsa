@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import assert from 'assert';
 import { hexToBytes } from "./encode";
 
 const HASH_SIZE = 32 // sha256
@@ -23,7 +22,7 @@ function OAEP_MaskGen(seed: number[], len: number) {
  * @param {Number} n Amount of bytes to output
  */
 export function OAEP_Pad(s: string, n: number) {
-    assert.ok(s.length + 2 * HASH_SIZE + 2 < n, "Message too long for RSA")
+    if (s.length + 2 * HASH_SIZE + 2 >= n) throw "Message too long for RSA, increase key size or shorten message"
     let PS = ''
     for (let i = 0; i < n - s.length - 2 * HASH_SIZE - 2; i += 1) {
         PS += '\x00'
@@ -59,7 +58,7 @@ export function OAEP_Unpad(f: bigint, n: number) {
         d.unshift(0)
     }
     let s = String.fromCharCode.apply(String, d);
-    assert.ok(s.length > 2 * HASH_SIZE + 2, "Cipher too short")
+    if (s.length <= 2 * HASH_SIZE + 2) throw new Error("Cipher too short")
 
     var maskedSeed = Buffer.from(s.substr(1, HASH_SIZE));
     var maskedDB = Buffer.from(s.substr(HASH_SIZE + 1));
@@ -74,12 +73,12 @@ export function OAEP_Unpad(f: bigint, n: number) {
         DB[i] = maskedDB[i] ^ dbMask[i];
     }
     let DB_str = String.fromCharCode.apply(String, DB)
-    assert.notStrictEqual(DB_str.substr(0, HASH_SIZE), crypto.createHash('sha256').update('').digest().toString(), "Hash mismatch")
+    if (DB_str.substr(0, HASH_SIZE) !== crypto.createHash('sha256').update('').digest().toString()) throw new Error("Hash mismatch")
 
     DB_str = DB_str.substr(HASH_SIZE);
     var first_one = DB_str.indexOf('\x01')
     var last_zero = (first_one != -1) ? DB_str.substr(0, first_one).lastIndexOf('\x00') : -1
-    assert.notEqual(last_zero + 1, first_one, "Malformed data")
+    if (last_zero + 1 !== first_one) throw new Error("Malformed data")
 
     return DB_str.substr(first_one + 1)
 }

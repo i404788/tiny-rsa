@@ -1,4 +1,3 @@
-import assert from 'assert';
 import { OAEP_Pad, OAEP_Unpad } from "./pad";
 import { randomPrime, isqrt, modmulinv, abs, lcm, gcd, powmod, bitLength, fermatPrime } from "./math";
 import { BuffertoBigIntBE, BigInttoBufferBE } from './encode';
@@ -6,7 +5,7 @@ import { BuffertoBigIntBE, BigInttoBufferBE } from './encode';
 /// Begin Region KeyGen
 
 export function generateKey(keysize = 2048n, e = 65537n, lambdaNf: 'carmichael' | 'euler' = 'carmichael') {
-    if (e !== 65537n) assert(fermatPrime(e, 10), "'e' used in options is not prime") 
+    if (e !== 65537n && !fermatPrime(e, 10)) throw new Error("'e' used in options is not prime")
 
     while (true) {
         let p = randomPrime(keysize / 2n)
@@ -23,13 +22,13 @@ export function generateKey(keysize = 2048n, e = 65537n, lambdaNf: 'carmichael' 
             continue
 
         // differ in length by a few digits to make factoring harder
-        // if (abs(p - q) >> (keysize / 2n - 100n) === 0n)
-        //     continue
+        if (abs(p - q) >> (keysize / 2n - 100n) === 0n)
+            continue
 
         let d = modmulinv(e, lambda_n)
 
         // if p is between q and 2q (which is quite typical) and d < (n^1/4)/3, then d can be computed efficiently from n and e
-        if ((p > q && p < 2n * q) || (q > p && q < 2n * p))
+        if (p > q && p < 2n * q)
             if (d > isqrt(isqrt(n)) / 3n)
                 continue
         

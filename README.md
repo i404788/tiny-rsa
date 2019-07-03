@@ -1,6 +1,6 @@
 # Tiny RSA
 A tiny RSA implementation written in modern typescript, with tc39 bigint.
-This module only relies on standard node.js libraries (Buffer, crypto & assert)
+This module only relies on standard node.js libraries (Buffer & crypto)
 
 ## **Disclaimer**
 **This module is currently in developement.
@@ -17,10 +17,12 @@ No warranty provided whatsoever, use at your own risk.**
 * Supports Key Generations
     * Any keysize (default 1024)
     * Any public exponent (default: 0x10001)
-* Only 9kB on nodejs
+* Tests
+    * Optimized math library
+    * ROCA tested
+* Only 8.8kB on nodejs
 
 ## Project structure
-* -|
-* --| src/ - Contains source code for tiny-rsa
-* --| dist/ - Output after compiling tiny-rsa
-* --| bench/ - Contains tests/benchmarks
+* src/ - Contains source code for tiny-rsa
+* dist/ - Output after compiling tiny-rsa
+* bench/ - Contains tests/benchmarks
