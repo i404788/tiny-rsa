@@ -1,5 +1,5 @@
-import { OAEP_Pad, OAEP_Unpad } from "./pad";
-import { randomPrime, isqrt, modmulinv, abs, lcm, gcd, powmod, fermatPrime, byteLength } from "./math";
+import { OAEP_Pad, OAEP_Unpad, PKCS1_OAEP_Unpad, PKCS1_OAEP_Pad } from './pad';
+import { randomPrime, isqrt, modmulinv, abs, lcm, gcd, powmod, fermatPrime, byteLength } from './math';
 import { Buff2bigint, bigint2Buff } from './encode';
 
 /// Begin Region KeyGen
@@ -45,19 +45,32 @@ export function generateKey(keysize = 2048n, e = 65537n, lambdaNf: 'carmichael' 
 
 /// Begin Region RSA-Crypt
 
-export function Encrypt(text: Buffer, publickey: bigint, modulus: bigint) {
+export function Encrypt(text: Buffer, key: {publickey: bigint, modulus: bigint, privatekey?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' = 'oaep') {
     let intText = Buff2bigint(text)
     // Keep 1 byte headroom
-    let padded = OAEP_Pad(intText, byteLength(modulus) - 1n)
+    let padded
+    switch (padalgo) {
+        case 'oaep':
+            padded = OAEP_Pad(intText, byteLength(key.modulus) - 1n)
+            break;
+        case 'pkcs#1-oaep':
+            padded = PKCS1_OAEP_Pad(intText, byteLength(key.modulus) - 1n)
+            break;
+    }
     if (!padded) return null
-    let ciphertext = powmod(padded, publickey, modulus)
+    let ciphertext = powmod(padded, key.publickey, key.modulus)
     return ciphertext
 }
 
-export function Decrypt(ctext: bigint, privatekey: bigint, modulus: bigint) {
-    let plain = powmod(ctext, privatekey, modulus)
+export function Decrypt(ctext: bigint, key: {privatekey: bigint, modulus: bigint, publickey?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' = 'oaep') {
+    let plain = powmod(ctext, key.privatekey, key.modulus)
     if (!plain) return null
-    return OAEP_Unpad(plain, byteLength(modulus) - 1n)
+    switch (padalgo) {
+        case 'oaep':
+            return OAEP_Unpad(plain, byteLength(key.modulus) - 1n)       
+        case 'pkcs#1-oaep':
+            return PKCS1_OAEP_Unpad(plain, byteLength(key.modulus) - 1n)
+    }
 }
 
 export function rawEncrypt(text: Buffer, publickey: bigint, modulus: bigint) {

@@ -30,9 +30,9 @@ const rsa = require('tiny-rsa')
 const key = rsa.generateKey(1024n)
 
 // Uses OAEP padding with MGF1-sha256 (PKCS#1)
-let ciphertext = rsa.Encrypt(Buffer.from("ABC"), key.public_exp, key.modulus)
+let ciphertext = rsa.Encrypt(Buffer.from("ABC"), key)
 
-let plaintext = rsa.Decrypt(ciphertext, key.private_exp, key.modulus)
+let plaintext = rsa.Decrypt(ciphertext, key)
 
 console.log(plaintext.toString())
 // Output: ABC

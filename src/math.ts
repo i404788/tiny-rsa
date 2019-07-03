@@ -37,6 +37,15 @@ export function byteLength (n: bigint) {
     return BigInt(Math.ceil(n.toString(16).length/2))
 }
 
+export function concat (...n: bigint[]) {
+    let out = n[0]
+    for (let i = 1; i < n.length; i++) {
+        out <<= byteLength(n[i]) * 8n
+        out |= n[i]        
+    }
+    return out
+}
+
 export function bitLength (n: bigint) {
     let i = 0n
     while (n >> i) {
