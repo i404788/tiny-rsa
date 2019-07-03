@@ -1,45 +1,44 @@
 import assert from 'assert';
 import { OAEP_Pad, OAEP_Unpad } from "./pad";
-import { randomPrime, isqrt, modmulinv, abs, lcm, gcd, powmod, bitLength } from "./math";
+import { randomPrime, isqrt, modmulinv, abs, lcm, gcd, powmod, bitLength, fermatPrime } from "./math";
 import { BuffertoBigIntBE, BigInttoBufferBE } from './encode';
 
 /// Begin Region KeyGen
 
-export function Key(opt: {egen?: string, lambdaNf?: string, keysize?: number}) {
-    let opts = {
-        egen: 'standard',
-        lambdaNf: 'lcm',
-        keysize: 1024
-    }
-    Object.assign(opts, opt)
-    let e = opts.egen === 'standard' ? 65537n:
-        opts.egen === 'small' ? randomPrime(20) :
-            opts.egen === 'big' ? randomPrime(64) : // TODO: adjust probability
-                randomPrime(32) // default
-    let p
-    let q
-    let lambda_n
-    do {
-        p = randomPrime(opts.keysize / 2) // TODO: Change to more secure default
-        q = randomPrime(opts.keysize / 2)
-        lambda_n = opts.lambdaNf === 'totient' ? (p - 1n) * (q - 1n) : lcm(p - 1n, q - 1n)
-    } while (gcd(e, lambda_n) !== 1n || (abs(p - q) >> (BigInt(opts.keysize) / 2n - 100n)) === 0n || p - q < isqrt(isqrt(2n * p * q)))
-    // Makse sure e and lambda_n are coprime and lambda_n is prime
-    //(bigInt.gcd(e, lambda).notEquals(1) || p.minus(q).abs().shiftRight(keysize / 2 - 100).isZero());
+export function generateKey(keysize = 2048n, e = 65537n, lambdaNf: 'carmichael' | 'euler' = 'carmichael') {
+    if (e !== 65537n) assert(fermatPrime(e, 10), "'e' used in options is not prime") 
 
-    let n = p * q
-    assert(p - q > isqrt(isqrt(2n * n)), 'p − q is less than 2n^1/4 it\'s insecure')
-    assert(lambda_n % e !== 0n, "Choosing a prime number for e leaves us only to check that e is not a divisor of lambda")
+    while (true) {
+        let p = randomPrime(keysize / 2n)
+        let q = randomPrime(keysize / 2n)
+        let lambda_n = lambdaNf === 'euler' ? (p - 1n) * (q - 1n) : lcm(p - 1n, q - 1n)
 
-    let d = modmulinv(e, lambda_n) // (1n + (randomBInt() * lambda_n)) / e
+        // Makse sure e and lambda_n are coprime
+        if (gcd(e, lambda_n) !== 1n)
+            continue
 
-    if (p > q && p < 2n * q)
-    assert(d > isqrt(isqrt(n)) / 3n, 'if p is between q and 2q (which is quite typical) and d < (n^1/4)/3, then d can be computed efficiently from n and e')
+        let n = p * q
+        // p − q is less than 2n^1/4 it's insecure
+        if (abs(p - q) < isqrt(isqrt(2n * n)))
+            continue
 
-    return {
-        modulus: n,
-        public_exp: e,
-        private_exp: d
+        // differ in length by a few digits to make factoring harder
+        // if (abs(p - q) >> (keysize / 2n - 100n) === 0n)
+        //     continue
+
+        let d = modmulinv(e, lambda_n)
+
+        // if p is between q and 2q (which is quite typical) and d < (n^1/4)/3, then d can be computed efficiently from n and e
+        if ((p > q && p < 2n * q) || (q > p && q < 2n * p))
+            if (d > isqrt(isqrt(n)) / 3n)
+                continue
+        
+        
+        return {
+            modulus: n,
+            public_exp: e,
+            private_exp: d
+        }
     }
 }
 

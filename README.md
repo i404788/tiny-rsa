@@ -18,3 +18,9 @@ No warranty provided whatsoever, use at your own risk.**
     * Any keysize (default 1024)
     * Any public exponent (default: 0x10001)
 * Only 9kB on nodejs
+
+## Project structure
+* -|
+* --| src/ - Contains source code for tiny-rsa
+* --| dist/ - Output after compiling tiny-rsa
+* --| bench/ - Contains tests/benchmarks
