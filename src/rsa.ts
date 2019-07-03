@@ -1,6 +1,6 @@
 import { OAEP_Pad, OAEP_Unpad } from "./pad";
-import { randomPrime, isqrt, modmulinv, abs, lcm, gcd, powmod, bitLength, fermatPrime } from "./math";
-import { BuffertoBigIntBE, BigInttoBufferBE } from './encode';
+import { randomPrime, isqrt, modmulinv, abs, lcm, gcd, powmod, fermatPrime, byteLength } from "./math";
+import { Buff2bigint, bigint2Buff } from './encode';
 
 /// Begin Region KeyGen
 
@@ -64,8 +64,9 @@ export function DecryptC(CipherText: bigint, privatekey: bigint, modulus: bigint
     return powmod(CipherText, privatekey, modulus)
 }
 
-export function Encrypt(text: string, publickey: bigint, modulus: bigint) {
-    let padded = OAEP_Pad(text, (Number(bitLength(modulus)) + 7) >> 3)
+export function Encrypt(text: Buffer, publickey: bigint, modulus: bigint) {
+    let intText = Buff2bigint(text)
+    let padded = OAEP_Pad(intText, byteLength(modulus) - 1n)
     if (!padded) return null
     let ciphertext = EncryptM(padded, publickey, modulus)
     return ciphertext
@@ -74,14 +75,14 @@ export function Encrypt(text: string, publickey: bigint, modulus: bigint) {
 export function Decrypt(ctext: bigint, privatekey: bigint, modulus: bigint) {
     let plain = DecryptC(ctext, privatekey, modulus)
     if (!plain) return null
-    return OAEP_Unpad(plain, (Number(bitLength(modulus)) + 7) >> 3)
+    return OAEP_Unpad(plain, byteLength(modulus) - 1n)
 }
 
 export function rawEncrypt(text: string, publickey: bigint, modulus: bigint) {
-    return EncryptM(BuffertoBigIntBE(Buffer.from(text)), publickey, modulus);
+    return EncryptM(Buff2bigint(Buffer.from(text)), publickey, modulus);
 }
 export function rawDecrypt(ctext: bigint, privatekey: bigint, modulus: bigint) {
-    return BigInttoBufferBE(DecryptC(ctext, privatekey, modulus)).toString();
+    return bigint2Buff(DecryptC(ctext, privatekey, modulus)).toString();
 }
 
 /// End Region RSA-Crypt

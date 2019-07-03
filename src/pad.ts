@@ -1,84 +1,67 @@
 import crypto from 'crypto';
-import { hexToBytes } from "./encode";
+import { Buff2bigint, bigint2Buff } from "./encode";
+import { byteLength } from './math';
 
 const HASH_SIZE = 32
+const HASH_SIZEn = BigInt(HASH_SIZE)
 
 export function OAEP_MaskGen(seed: Buffer, len: number) {
-    let mask = '', i = 0
-    while (mask.length < len) {
-        mask += crypto.createHash('sha256').update(
+    let mask = Buffer.alloc(len + HASH_SIZE), i = 0
+    while (i * HASH_SIZE < len) {
+        mask.write(crypto.createHash('sha256').update(
             Buffer.concat([seed, new Uint8Array([
-                (i & 0xff000000) >> 24,
-                (i & 0x00ff0000) >> 16,
-                (i & 0x0000ff00) >> 8,
-                i & 0x000000ff])]
-            )).digest();
+                    (i & 0xff000000) >> 24,
+                    (i & 0x00ff0000) >> 16,
+                    (i & 0x0000ff00) >> 8,
+                    i & 0x000000ff])]
+                )).digest('latin1'),
+            i * HASH_SIZE, HASH_SIZE, 'latin1')
         i += 1;
     }
-    return mask
+    return mask.slice(0, len)
 }
 
 /**
- * PKCS#1 (OAEP) pad input string s to n bytes, and return a bigint
- * @param {String} s Text used for message
- * @param {Number} n Amount of bytes to output
+ * Pads message using the non-MFG OAEP function
+ * @param s The message to be padded
+ * @param n The size of the modulus in bytes
  */
-export function OAEP_Pad(s: string, n: number) {
-    if (s.length + 2 * HASH_SIZE + 2 >= n) throw "Message too long for RSA, increase key size or shorten message"
-    let PS = ''
-    for (let i = 0; i < n - s.length - (2 * HASH_SIZE) - 2; i += 1) {
-        PS += '\x00'
-    }
-    // DB = pHash || 00 ... || 01 || M
-    let DB = Buffer.from(crypto.createHash('sha256').update('').digest() + PS + '\x01' + s)
+export function OAEP_Pad(s: bigint, n: bigint){
+    // k0 = 2*len(H|G) - 1
+    // m > n - k0?
+    let k0 = (HASH_SIZEn << 1n) - 1n
+    let m = byteLength(s)
+    if (m > n - k0) throw "Message too big for RSA, increase key size or shorten message"
+    // if (n - k0 > HASH_SIZEn) throw "Mesage too large for sha256"
+    // r = urandom
+    let r = crypto.randomBytes(Number(k0))
+    // k1 = n - m - k0
+    // X = m00...00
+    let X = s << ((n - m - k0) * 8n)
+    // X = X ⊕ G(r)
+    X ^= Buff2bigint(OAEP_MaskGen(r, Number(n - k0)))
+    // Y = r ⊕ H(X)
+    let Y = Buff2bigint(r) ^ Buff2bigint(OAEP_MaskGen(bigint2Buff(X), Number(k0)))
 
-    var seed = crypto.randomBytes(HASH_SIZE)
-    var dbMask = Buffer.from(OAEP_MaskGen(seed, DB.length))
-    var maskedDB = Buffer.alloc(DB.length)
-    for (let i = 0; i < DB.length; i += 1) {
-        maskedDB[i] = DB[i] ^ dbMask[i]
-    }
-    var seedMask = Buffer.from(OAEP_MaskGen(maskedDB, seed.length))
-    var maskedSeed = Buffer.alloc(seed.length)
-    for (let i = 0; i < seed.length; i += 1) {
-        maskedSeed[i + 1] = seed[i] ^ seedMask[i]
-    }
-    return BigInt('0x' + Buffer.concat([maskedSeed,maskedDB]).toString('hex'))
+    return Buff2bigint(Buffer.concat([bigint2Buff(X), bigint2Buff(Y)]))
 }
 
-/**
- * Undo PKCS#1 (OAEP) padding and, if valid, return the plaintext
- * @param {String} f Padded text used for message
- * @param {Number} n Amount of bytes to output
- */
-export function OAEP_Unpad(f: bigint, _n: number) {
-    let d = hexToBytes(f.toString(16))
-    // while (d.length < n) {
-    //     d.unshift(0)
-    // }
-    let s = d.toString()
-    if (s.length <= 2 * HASH_SIZE + 2) throw new Error("Cipher too short")
+export function OAEP_Unpad(s: bigint, n: bigint) {
+    let k0 = (HASH_SIZEn << 1n) - 1n
+    let m = byteLength(s)
 
-    var maskedSeed = Buffer.from(s.substr(1, HASH_SIZE));
-    var maskedDB = Buffer.from(s.substr(HASH_SIZE + 1));
-    var seedMask = Buffer.from(OAEP_MaskGen(maskedDB, HASH_SIZE));
-    var seed = Buffer.alloc(seedMask.length)
-    let i;
-    for (i = 0; i < maskedSeed.length; i += 1) {
-        seed[i] = maskedSeed[i] ^ seedMask[i]
-    }
-    var dbMask = Buffer.from(OAEP_MaskGen(seed, s.length - HASH_SIZE))
-    let DB:Buffer = Buffer.alloc(maskedDB.length);
-    for (i = 0; i < maskedDB.length; i += 1) {
-        DB[i] = maskedDB[i] ^ dbMask[i];
-    }
-    let DB_str = DB.toString()
-    if (DB_str.substr(0, HASH_SIZE) !== crypto.createHash('sha256').update('').digest().toString()) throw new Error("Hash mismatch")
+    if (m < (HASH_SIZEn << 1n) + 1n) throw new Error("Cipher too short")
 
-    DB_str = DB_str.substr(HASH_SIZE);
-    var first_one = DB_str.indexOf('\x01')
-    var last_zero = (first_one != -1) ? DB_str.substr(0, first_one).lastIndexOf('\x00') : -1
-    if (last_zero + 1 !== first_one) throw new Error("Malformed data")
+    let I = bigint2Buff(s)
+    let X = I.slice(0, Number(n - k0))
+    let Y = Buff2bigint(I.slice(Number(n - k0)))
 
-    return DB_str.substr(first_one + 1)
+    // r = Y ⊕ H(X)
+    let r = Y ^ Buff2bigint(OAEP_MaskGen(X, Number(k0)))
+    // m = X ⊕ G(r)
+    let padded = Buff2bigint(X) ^ Buff2bigint(OAEP_MaskGen(bigint2Buff(r), Number(n - k0)))
+
+    if (byteLength(padded) !== n - k0) console.warn(`padded text is not the expected length`)
+    while ((padded & 255n) === 0n) padded >>= 8n;
+    return bigint2Buff(padded)
 }

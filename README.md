@@ -1,6 +1,6 @@
 # Tiny RSA
 A tiny RSA implementation written in modern typescript, with tc39 bigint.
-This module only relies on standard node.js libraries (Buffer & crypto)
+This module only relies on standard node.js libraries (Buffer & crypto currently)
 
 ## **Disclaimer**
 **This module is currently in developement.
@@ -11,7 +11,7 @@ No warranty provided whatsoever, use at your own risk.**
 
 ## Features
 * Supports padding
-    * OAEP 
+    * OAEP
     * raw
 * Includes reusable maths library for tc39 bigints
 * Supports Key Generations
@@ -21,6 +21,23 @@ No warranty provided whatsoever, use at your own risk.**
     * Optimized math library
     * ROCA tested
 * Only 8.8kB on nodejs
+
+## Basic Usage
+```javascript
+const rsa = require('tiny-rsa')
+
+// This can take a few seconds
+const key = rsa.generateKey(1024n)
+
+// Uses OAEP padding with MGF1-sha256 (PKCS#1)
+let ciphertext = rsa.Encrypt(Buffer.from("ABC"), key.public_exp, key.modulus)
+
+let plaintext = rsa.Decrypt(ciphertext, key.private_exp, key.modulus)
+
+console.log(plaintext.toString())
+// Output: ABC
+```
+Docs coming soon(tm)
 
 ## Project structure
 * src/ - Contains source code for tiny-rsa

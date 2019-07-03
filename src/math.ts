@@ -37,9 +37,9 @@ export function modmulinv(n: bigint, mod: bigint){
 }
 
 
-// function byteLength (n: bigint) {
-//     return Math.ceil(n.toString(16).length/2)
-// }
+export function byteLength (n: bigint) {
+    return BigInt(Math.ceil(n.toString(16).length/2))
+}
 
 export function bitLength (n: bigint) {
     let i = 0n
