@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import { createHash } from 'crypto';
 import { Buff2bigint, bigint2Buff } from "./encode";
 import { byteLength, randBits } from './math';
 
@@ -8,7 +8,7 @@ const HASH_SIZEn = BigInt(HASH_SIZE)
 export function OAEP_MaskGen(seed: Buffer, len: number) {
     let mask = Buffer.alloc(len + HASH_SIZE), i = 0
     while (i * HASH_SIZE < len) {
-        mask.write(crypto.createHash('sha256').update(
+        mask.write(createHash('sha256').update(
             Buffer.concat([seed, new Uint8Array([
                     (i & 0xff000000) >> 24,
                     (i & 0x00ff0000) >> 16,
@@ -37,7 +37,7 @@ export function OAEP_Pad(s: bigint, n: bigint){
     let r = randBits(k0 * 8n)
     // k1 = n - m - k0
     // X = m00...00
-    let X = s << ((n - m - k0) * 8n)
+    let X = (s << ((n - m - k0) * 8n)) + 1n
     // X = X ⊕ G(r)
     X ^= Buff2bigint(OAEP_MaskGen(bigint2Buff(r), Number(n - k0)))
     // Y = r ⊕ H(X)
@@ -68,5 +68,6 @@ export function OAEP_Unpad(s: bigint, n: bigint) {
 
     if (byteLength(padded) !== n - k0) console.warn(`padded text is not the expected length`)
     while ((padded & 255n) === 0n) padded >>= 8n;
+    if ((padded & 255n) !== 1n) throw new Error("Decryption failed")
     return bigint2Buff(padded)
 }

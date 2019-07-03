@@ -1,5 +1,5 @@
 # Tiny RSA
-A tiny RSA implementation written in modern typescript, with tc39 bigint.
+A tiny RSA implementation written in pure typescript, with tc39 bigint.
 This module only relies on standard node.js libraries (Buffer & crypto currently)
 
 ## **Disclaimer**
@@ -20,7 +20,7 @@ No warranty provided whatsoever, use at your own risk.**
 * Tests
     * Optimized math library
     * ROCA tested
-* Only 8kB on nodejs
+* Only 7.4kB on nodejs
 
 ## Basic Usage
 ```javascript
