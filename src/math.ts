@@ -17,10 +17,6 @@ export function isqrt(n: bigint): bigint {
         return largeD
 }
 
-// export function totient(p: bigint, q: bigint): bigint {
-//     return (p - 1n) * (q - 1n)
-// }
-
 export function egcd(a: bigint, b: bigint): {gcd: bigint, bx: bigint, by: bigint} {
     if (!b) return {gcd: a, bx: 1n, by: 0n};
     const {gcd, bx, by} = egcd(b, a % b);

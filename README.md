@@ -20,7 +20,7 @@ No warranty provided whatsoever, use at your own risk.**
 * Tests
     * Optimized math library
     * ROCA tested
-* Only 8.8kB on nodejs
+* Only 8kB on nodejs
 
 ## Basic Usage
 ```javascript

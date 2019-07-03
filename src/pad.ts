@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { Buff2bigint, bigint2Buff } from "./encode";
-import { byteLength } from './math';
+import { byteLength, randBits } from './math';
 
 const HASH_SIZE = 32
 const HASH_SIZEn = BigInt(HASH_SIZE)
@@ -22,7 +22,7 @@ export function OAEP_MaskGen(seed: Buffer, len: number) {
 }
 
 /**
- * Pads message using the non-MFG OAEP function
+ * Pads message using the MFG OAEP function
  * @param s The message to be padded
  * @param n The size of the modulus in bytes
  */
@@ -34,18 +34,23 @@ export function OAEP_Pad(s: bigint, n: bigint){
     if (m > n - k0) throw "Message too big for RSA, increase key size or shorten message"
     // if (n - k0 > HASH_SIZEn) throw "Mesage too large for sha256"
     // r = urandom
-    let r = crypto.randomBytes(Number(k0))
+    let r = randBits(k0 * 8n)
     // k1 = n - m - k0
     // X = m00...00
     let X = s << ((n - m - k0) * 8n)
     // X = X ⊕ G(r)
-    X ^= Buff2bigint(OAEP_MaskGen(r, Number(n - k0)))
+    X ^= Buff2bigint(OAEP_MaskGen(bigint2Buff(r), Number(n - k0)))
     // Y = r ⊕ H(X)
-    let Y = Buff2bigint(r) ^ Buff2bigint(OAEP_MaskGen(bigint2Buff(X), Number(k0)))
+    let Y = r ^ Buff2bigint(OAEP_MaskGen(bigint2Buff(X), Number(k0)))
 
     return Buff2bigint(Buffer.concat([bigint2Buff(X), bigint2Buff(Y)]))
 }
 
+/**
+ * Unpads message originally padded with OAEP_Pad
+ * @param s The message to be unpadded
+ * @param n The size of the modulus in bytes
+ */
 export function OAEP_Unpad(s: bigint, n: bigint) {
     let k0 = (HASH_SIZEn << 1n) - 1n
     let m = byteLength(s)

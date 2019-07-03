@@ -45,44 +45,26 @@ export function generateKey(keysize = 2048n, e = 65537n, lambdaNf: 'carmichael' 
 
 /// Begin Region RSA-Crypt
 
-/**
- * Encrypts plain-padded-text with public key and modulus
- * @param {BigInt} PaddedText 
- * @param {BigInt} publickey 
- * @param {BigInt} modulus 
- */
-export function EncryptM(PaddedText: bigint, publickey: bigint, modulus: bigint) {
-    return powmod(PaddedText, publickey, modulus)
-}
-
-/**
- * Decrypts Ciphertext into plain-padded-text
- * @param {BigInt} CipherText 
- * @param {BigInt} privatekey 
- */
-export function DecryptC(CipherText: bigint, privatekey: bigint, modulus: bigint) {
-    return powmod(CipherText, privatekey, modulus)
-}
-
 export function Encrypt(text: Buffer, publickey: bigint, modulus: bigint) {
     let intText = Buff2bigint(text)
+    // Keep 1 byte headroom
     let padded = OAEP_Pad(intText, byteLength(modulus) - 1n)
     if (!padded) return null
-    let ciphertext = EncryptM(padded, publickey, modulus)
+    let ciphertext = powmod(padded, publickey, modulus)
     return ciphertext
 }
 
 export function Decrypt(ctext: bigint, privatekey: bigint, modulus: bigint) {
-    let plain = DecryptC(ctext, privatekey, modulus)
+    let plain = powmod(ctext, privatekey, modulus)
     if (!plain) return null
     return OAEP_Unpad(plain, byteLength(modulus) - 1n)
 }
 
-export function rawEncrypt(text: string, publickey: bigint, modulus: bigint) {
-    return EncryptM(Buff2bigint(Buffer.from(text)), publickey, modulus);
+export function rawEncrypt(text: Buffer, publickey: bigint, modulus: bigint) {
+    return powmod(Buff2bigint(text), publickey, modulus);
 }
 export function rawDecrypt(ctext: bigint, privatekey: bigint, modulus: bigint) {
-    return bigint2Buff(DecryptC(ctext, privatekey, modulus)).toString();
+    return bigint2Buff(powmod(ctext, privatekey, modulus)).toString();
 }
 
 /// End Region RSA-Crypt
