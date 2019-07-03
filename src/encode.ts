@@ -12,8 +12,9 @@ export function BigInttoBufferBE(num: bigint, width: number = -1): Buffer {
     return buffer;
 }
 
-export function hexToBytes(hex: string) {
-    for (var bytes = [], c = 0; c < hex.length; c += 2)
-    bytes.push(parseInt(hex.substr(c, 2), 16));
+export function hexToBytes(hex: string): Buffer {
+    let bytes = Buffer.alloc(hex.length/2)
+    for (let c = 0; c < hex.length; c += 2)
+        bytes[c] = parseInt(hex.substr(c, 2), 16)
     return bytes;
 }
