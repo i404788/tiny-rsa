@@ -1,6 +1,6 @@
 {
   "name": "tiny-rsa",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Tiny RSA implementation in Typescript 3/ES2020",
   "main": "dist/rsa.js",
   "author": "Ferris Kwaijtaal <ferrispc@hotmail.com>",
