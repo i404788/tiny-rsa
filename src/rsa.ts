@@ -44,7 +44,7 @@ export function generateKey(keysize = 2048n, e = 65537n, lambdaNf: 'carmichael' 
 
 /// Begin Region RSA-Crypt
 
-export function Encrypt(text: Buffer, key: {publickey: bigint, modulus: bigint, privatekey?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' = 'oaep') {
+export function Encrypt(text: Buffer, key: {public_exp: bigint, modulus: bigint, private_exp?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' = 'oaep') {
     let intText = Buff2bigint(text)
     // Keep 1 byte headroom
     let padded
@@ -57,12 +57,12 @@ export function Encrypt(text: Buffer, key: {publickey: bigint, modulus: bigint, 
             break;
     }
     if (!padded) return null
-    let ciphertext = powmod(padded, key.publickey, key.modulus)
+    let ciphertext = powmod(padded, key.public_exp, key.modulus)
     return ciphertext
 }
 
-export function Decrypt(ctext: bigint, key: {privatekey: bigint, modulus: bigint, publickey?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' = 'oaep') {
-    let plain = powmod(ctext, key.privatekey, key.modulus)
+export function Decrypt(ctext: bigint, key: {private_exp: bigint, modulus: bigint, public_exp?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' = 'oaep') {
+    let plain = powmod(ctext, key.private_exp, key.modulus)
     if (!plain) return null
     switch (padalgo) {
         case 'oaep':
