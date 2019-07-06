@@ -7,8 +7,9 @@ This module only relies on standard node.js libraries (Buffer & crypto currently
 
 ## Features
 * Supports padding
-    * OAEP
-    * raw
+    * OAEP (original)
+    * PKCS#1-OAEP
+    * Raw
 * Includes reusable maths library for tc39 bigints
 * Supports Key Generations
     * Any keysize (default 1024)
