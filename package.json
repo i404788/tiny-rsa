@@ -1,8 +1,8 @@
 {
   "name": "tiny-rsa",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "description": "Tiny RSA implementation in Typescript 3/ES2020",
-  "main": "dist/rsa.js",
+  "main": "rsa.js",
   "author": "Ferris Kwaijtaal <ferrispc@hotmail.com>",
   "license": "MIT",
   "repository": {
@@ -15,10 +15,6 @@
     "benchmark": "^2.1.4"
   },
   "scripts": {
-    "prepack": "tsc"
-  },
-  "files": [
-    "dist",
-    "src"
-  ]
+    "publish-npm": "yarn exec tsc && cp README.md package.json dist && cd dist && npm publish && rm README.md package.json"
+  }
 }
