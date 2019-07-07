@@ -11,13 +11,14 @@ This module only relies on standard node.js libraries (Buffer & crypto currently
     * PKCS#1-OAEP
     * Raw
 * Includes reusable maths library for tc39 bigints
+* Compressed releases on npm
 * Supports Key Generations
     * Any keysize (default 1024)
     * Any public exponent (default: 0x10001)
 * Tests
     * Optimized math library
     * ROCA tested
-* Only 9.1kB on nodejs
+* Only 9.0kB on nodejs (3.7kB tarball)
 
 ## Basic Usage
 ```javascript

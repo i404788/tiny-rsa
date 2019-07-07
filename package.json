@@ -1,6 +1,6 @@
 {
   "name": "tiny-rsa",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Tiny RSA implementation in Typescript 3/ES2020",
   "main": "rsa.js",
   "author": "Ferris Kwaijtaal <ferrispc@hotmail.com>",
@@ -12,9 +12,12 @@
   "devDependencies": {
     "typescript":"^3.5.2",
     "@types/node": "^12.0.10",
-    "benchmark": "^2.1.4"
+    "benchmark": "^2.1.4",
+    "terser": "~4.1.0"
   },
   "scripts": {
+    "compress-js": "for f in *.js; do yarn terser --module --compress --mangle --output $f $f; done",
+    "prepack": "yarn && npm run compress-js",
     "publish-npm": "yarn exec tsc && cp README.md package.json dist && cd dist && npm publish && rm README.md package.json"
   }
 }
