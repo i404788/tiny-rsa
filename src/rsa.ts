@@ -44,10 +44,10 @@ export function generateKey(keysize = 2048n, e = 65537n, lambdaNf: 'carmichael' 
 
 /// Begin Region RSA-Crypt
 
-export function Encrypt(text: Buffer, key: {public_exp: bigint, modulus: bigint, private_exp?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' = 'oaep') {
+export function Encrypt(text: Buffer, key: {public_exp: bigint, modulus: bigint, private_exp?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' | 'raw' = 'oaep') {
     let intText = Buff2bigint(text)
     // Keep 1 byte headroom
-    let padded
+    let padded = intText
     switch (padalgo) {
         case 'oaep':
             padded = OAEP_Pad(intText, byteLength(key.modulus) - 1n)
@@ -56,27 +56,20 @@ export function Encrypt(text: Buffer, key: {public_exp: bigint, modulus: bigint,
             padded = PKCS1_OAEP_Pad(intText, byteLength(key.modulus) - 1n)
             break;
     }
-    if (!padded) return null
     let ciphertext = powmod(padded, key.public_exp, key.modulus)
     return ciphertext
 }
 
-export function Decrypt(ctext: bigint, key: {private_exp: bigint, modulus: bigint, public_exp?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' = 'oaep') {
+export function Decrypt(ctext: bigint, key: {private_exp: bigint, modulus: bigint, public_exp?: bigint}, padalgo: 'pkcs#1-oaep' | 'oaep' | 'raw' = 'oaep') {
     let plain = powmod(ctext, key.private_exp, key.modulus)
-    if (!plain) return null
     switch (padalgo) {
         case 'oaep':
             return OAEP_Unpad(plain, byteLength(key.modulus) - 1n)       
         case 'pkcs#1-oaep':
             return PKCS1_OAEP_Unpad(plain, byteLength(key.modulus) - 1n)
+        case 'raw':
+            return bigint2Buff(plain)
     }
-}
-
-export function rawEncrypt(text: Buffer, publickey: bigint, modulus: bigint) {
-    return powmod(Buff2bigint(text), publickey, modulus);
-}
-export function rawDecrypt(ctext: bigint, privatekey: bigint, modulus: bigint) {
-    return bigint2Buff(powmod(ctext, privatekey, modulus)).toString();
 }
 
 /// End Region RSA-Crypt
