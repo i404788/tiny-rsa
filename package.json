@@ -10,10 +10,10 @@
     "url": "https://github.com/i404788/tiny-rsa"
   },
   "devDependencies": {
-    "typescript":"^3.5.2",
     "@types/node": "^12.0.10",
     "benchmark": "^2.1.4",
-    "terser": "~4.1.0"
+    "terser": "~4.1.0",
+    "typescript": "^3.5.2"
   },
   "scripts": {
     "compress-js": "for f in *.js; do yarn terser --module --compress --mangle --output $f $f; done",
